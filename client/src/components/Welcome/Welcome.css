@@ -1,0 +1,34 @@
+.welcome > .cards {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.menuItem .card {
+  display: flex;
+  margin: 30px;
+  width: 240px;
+  height: 300px;
+  text-align: center;
+}
+.menuItem .card .content {
+  display: none;
+}
+.menuItem .card:hover {
+  box-shadow: 0 0 5px rgba(71, 70, 70, 0.505);
+}
+.menuItem .card:hover > .content {
+  display: block;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+.menuItem .card > .image {
+  width: 240px;
+  height: 300px;
+}
+.menuItem .card > .image > img {
+  width: 240px;
+  height: 260px;
+}
+.menuItem .card:hover > .image {
+  display: none;
+}

@@ -1,0 +1,27 @@
+.pesticide {
+  display: flex;
+  padding-bottom: 5vmax;
+}
+
+.pesticide_left {
+  width: 400px;
+  border-right: 1px solid rgba(128, 128, 128, 0.514);
+}
+.pesticide_right {
+  width: 100%;
+}
+
+.pesticide_right > .cards {
+  display: flex;
+  width: 100%;
+  height: max-content;
+  display: flex;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+}
+
+@media screen and (max-width: 1000px) {
+  .pesticide_left {
+    display: none;
+  }
+}
