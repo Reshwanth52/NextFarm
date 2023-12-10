@@ -5,9 +5,12 @@ const crypto = require("crypto");
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const sendToken = require("../utils/jwtToken");
 const ErrorHandler = require("../utils/errorhandler");
+const ApiFeatures = require("../utils/apifeatures");
+const cloudinary = require("cloudinary").v2;
+const path = require("path");
 
 exports.registerUser = catchAsyncErrors(async (request, response, next) => {
-  const { userName, email, password } = request.body;
+  const { name, email, password } = request.body;
 
   let user = await User.findOne({ email });
 
@@ -15,11 +18,27 @@ exports.registerUser = catchAsyncErrors(async (request, response, next) => {
     return next(new ErrorHandler("Email already exist", 402));
   }
 
+  let avatar = request.body.avatar;
+  if (avatar) {
+    const myCloud = await cloudinary.uploader
+      .upload(avatar, {
+        folder: "avatars",
+        width: 150,
+        crop: "scale",
+      })
+      .catch((error) => console.log(error));
+  }
+
   user = await User.create({
-    userName,
+    name,
     email,
     password,
-    avatar: { public_id: "sample public_id", url: "sample url" },
+    avatar: avatar
+      ? {
+          public_id: myCloud.public_id,
+          url: myCloud.secure_url,
+        }
+      : undefined,
   });
 
   sendToken(user, 201, response);
@@ -49,16 +68,18 @@ exports.loginUser = catchAsyncErrors(async (request, response, next) => {
 
 exports.logout = catchAsyncErrors(async (request, response, next) => {
   try {
-    response.cookie("jsonWebToken", null, {
+    response.cookie("token", null, {
       expires: new Date(Date.now()),
       httpOnly: true,
     });
 
     return response
       .status(200)
-      .json({ sucess: true, message: "logout sucessfully" });
+      .json({ success: true, message: "logout successfully" });
   } catch (error) {
-    return response.status(500).json({ sucess: false, message: error.message });
+    return response
+      .status(500)
+      .json({ success: false, message: error.message });
   }
 });
 
@@ -71,32 +92,32 @@ exports.followUser = catchAsyncErrors(async (request, response, next) => {
 
   const user = request.user;
 
-  if (user.following.includes(userToFollow._id)) {
-    let index = await user.following.indexOf(userToFollow._id);
-    await user.following.splice(index, 1);
+  if (user.followings.includes(userToFollow._id)) {
+    let index = await user.followings.indexOf(userToFollow._id);
+    await user.followings.splice(index, 1);
     await user.save();
 
-    index = await userToFollow.followers.indexOf(userToFollow._id);
-    await userToFollow.followers.splice(index, 1);
+    index = userToFollow.followers.indexOf(userToFollow._id);
+    userToFollow.followers.splice(index, 1);
     await userToFollow.save();
 
     return response
       .status(200)
-      .json({ sucess: true, message: "UnFollowing the user" });
+      .json({ success: true, message: "Unfollowing the user" });
   }
-  await user.following.push(userToFollow._id);
+  await user.followings.push(userToFollow._id);
   await user.save();
 
-  await userToFollow.followers.push(user._id);
+  userToFollow.followers.push(user._id);
   await userToFollow.save();
 
   return response
     .status(200)
-    .json({ sucess: true, message: "Following the user" });
+    .json({ success: true, message: "following the user" });
 });
 
 exports.updatePassword = catchAsyncErrors(async (request, response, next) => {
-  const { oldPassword, newPassword } = await request.body;
+  const { oldPassword, newPassword, confirmPassword } = await request.body;
 
   const user = await User.findById(request.user._id).select("+password");
 
@@ -106,31 +127,88 @@ exports.updatePassword = catchAsyncErrors(async (request, response, next) => {
     return next(new ErrorHandler("Old Password Incorrect", 404));
   }
 
+  if (newPassword !== confirmPassword) {
+    return next(new ErrorHandler("password does not match", 400));
+  }
+
   user.password = newPassword;
 
   await user.save();
 
-  return response
-    .status(200)
-    .json({ sucess: true, message: "Password updated Sucessfully" });
+  sendToken(user, 200, response);
 });
 
 exports.updateProfile = catchAsyncErrors(async (request, response, next) => {
-  const { newUserName, newEmail, newcontactNumber, newUserRole } = request.body;
+  const newUserData = {
+    name: request.body.name,
+    email: request.body.email,
+    contactNumber: request.body.contactNumber,
+  };
 
-  const user = request.user;
+  if (request.body.avatar !== request.user.avatar.url) {
+    const user = await User.findById(request.user._id);
 
-  user.userName = newUserName;
-  user.email = newEmail;
-  user.contactNumber = newcontactNumber;
-  user.userRole = newUserRole;
+    const imageId = user.avatar.public_id;
 
-  await user.save();
+    await cloudinary.uploader.destroy(imageId);
 
-  return response
-    .status(200)
-    .json({ sucess: true, message: "Profile Updated Sucessfully", user });
+    const myCloud = await cloudinary.uploader.upload(request.body.avatar, {
+      folder: "avatars",
+      width: 150,
+      crop: "scale",
+    });
+
+    newUserData.avatar = {
+      public_id: myCloud.public_id,
+      url: myCloud.secure_url,
+    };
+  }
+
+  const user = await User.findByIdAndUpdate(request.user._id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  return response.status(200).json({
+    success: true,
+    message: "Profile Updated successfully",
+    isUpdated: true,
+  });
 });
+
+async function deletingPostsOfuser(posts) {
+  posts.forEach(async (item) => {
+    let feed = await Feed.findById(item);
+    feed.images.forEach((image) => {
+      cloudinary.uploader.destroy(image.public_id);
+    });
+
+    await feed.deleteOne();
+  });
+}
+
+async function removingFollowersAndFollowingsOfUser(followers, followings) {
+  followers.forEach(async (item) => {
+    let followingsUser = await User.findById(item);
+
+    let index = followingsUser.followings.indexOf(request.user._id);
+
+    followingsUser.followings.splice(index, 1);
+
+    await followingsUser.save();
+  });
+
+  followings.forEach(async (item) => {
+    let followedUser = await User.findById(item);
+
+    let index = followedUser.followers.indexOf(request.user._id);
+
+    followedUser.followers.splice(index, 1);
+
+    await followedUser.save();
+  });
+}
 
 exports.deleteProfile = catchAsyncErrors(async (request, response, next) => {
   const { password } = request.body;
@@ -140,43 +218,19 @@ exports.deleteProfile = catchAsyncErrors(async (request, response, next) => {
   if (!isMatch) {
     return response
       .status(401)
-      .json({ sucess: false, message: "Incorrect Password" });
+      .json({ success: false, message: "Incorrect Password" });
   }
 
   // Deleting user posts
+  deletingPostsOfuser(request.user.posts);
 
-  const posts = request.user.posts;
-
-  posts.forEach(async (item) => {
-    let feed = await Feed.findById(item);
-
-    await feed.deleteOne();
-  });
-
-  // Deleting followings and followers
+  // Deleting followingss and followers
   const followers = request.user.followers;
 
-  followers.forEach(async (item) => {
-    let followingUser = await User.findById(item);
-
-    let index = await followingUser.following.indexOf(request.user._id);
-
-    await followingUser.following.splice(index, 1);
-
-    await followingUser.save();
-  });
-
-  const followings = request.user.following;
-
-  followings.forEach(async (item) => {
-    let followedUser = await User.findById(item);
-
-    let index = await followedUser.followers.indexOf(request.user._id);
-
-    await followedUser.followers.splice(index, 1);
-
-    await followedUser.save();
-  });
+  removingFollowersAndFollowingsOfUser(
+    request.user.followers,
+    request.user.followings
+  );
 
   // Loging out
   response.cookie("jsonWebToken", null, {
@@ -189,24 +243,36 @@ exports.deleteProfile = catchAsyncErrors(async (request, response, next) => {
 
   return response
     .status(200)
-    .json({ sucess: true, message: "Account Deleted Sucessfully" });
+    .json({ success: true, message: "Account Deleted successfully" });
 });
 
 exports.myProfile = catchAsyncErrors(async (request, response, next) => {
   const user = await User.findById(request.user._id).populate("posts");
-  return response.status(200).json({ sucess: true, user });
+  if (!user) {
+    return next(new ErrorHandler("Login To Access", 401));
+  }
+  return response.status(200).json({ success: true, user });
 });
+
+exports.getCurrentUserDetails = catchAsyncErrors(
+  async (request, response, next) => {
+    const user = await User.findById(request.user._id);
+
+    response.status(200).json({
+      success: true,
+      user,
+    });
+  }
+);
 
 exports.getUserProfile = catchAsyncErrors(async (request, response, next) => {
   const userProfile = await User.findById(request.params.id).populate("posts");
 
   if (!userProfile) {
-    return response
-      .status(404)
-      .json({ sucess: false, message: "User not found" });
+    return next(new ErrorHandler("user not Found", 404));
   }
 
-  return response.status(200).json({ sucess: true, userProfile });
+  return response.status(200).json({ success: true, userProfile });
 });
 
 // Get All Users -- Admin
@@ -214,40 +280,34 @@ exports.getAllUsers = catchAsyncErrors(async (request, response, next) => {
   const users = await User.find();
 
   if (!users) {
-    return response
-      .status(404)
-      .json({ sucess: false, message: "No User found" });
+    return next(new ErrorHandler("users not Found", 404));
   }
-  return response.status(200).json({ sucess: true, users });
+  return response.status(200).json({ success: true, users });
 });
 
 exports.getAllFarmers = catchAsyncErrors(async (request, response, next) => {
   const farmers = await User.find({ userRole: "farmer" });
 
   if (!farmers) {
-    return next(ErrorHandler("Farmers not found", 404));
+    return next(new ErrorHandler("Farmers not found", 404));
   }
-  return response.status(200).json({ sucess: true, farmers });
+  return response.status(200).json({ success: true, farmers });
 });
 
-exports.forgotPssword = catchAsyncErrors(async (request, response, next) => {
+exports.forgotPassword = catchAsyncErrors(async (request, response, next) => {
   const user = await User.findOne({ email: request.body.email });
 
   if (!user) {
-    return response
-      .status(404)
-      .json({ sucess: false, message: "User not found" });
+    return next(new ErrorHandler("Email not found as registered", 404));
   }
 
   const resetPasswordToken = user.getResetPasswordToken();
 
   await user.save();
 
-  const resetUrl = `${request.protocol}://${request.get(
-    "host"
-  )}/api/v1/password/reset/${resetPasswordToken}`;
+  const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetPasswordToken}`;
 
-  const message = `reset your Pawword by clicking on the link below: \n\n ${resetUrl}`;
+  const message = `Reset your Password by clicking on the link below: \n\n ${resetUrl}`;
 
   try {
     await sendEmail({
@@ -257,7 +317,7 @@ exports.forgotPssword = catchAsyncErrors(async (request, response, next) => {
     });
 
     response.status(200).json({
-      sucess: true,
+      success: true,
       message: `Email sent to ${user.email}`,
     });
   } catch (error) {
@@ -266,7 +326,7 @@ exports.forgotPssword = catchAsyncErrors(async (request, response, next) => {
     await user.save();
 
     response.status(500).json({
-      sucess: false,
+      success: false,
       message: error.message,
     });
   }
@@ -278,18 +338,20 @@ exports.resetPassword = catchAsyncErrors(async (request, response, next) => {
     .update(request.params.token)
     .digest("hex");
 
-  const user = await user.findOne({
+  const user = await User.findOne({
     resetPasswordToken,
     resetPasswordExpire: { $gt: Date.now() },
   });
 
   if (!user) {
-    return response.status(401).json({
-      sucess: false,
-      message: "Token is Invalid or Expired",
-    });
+    return next(new ErrorHandler("Token is Invalid or Expired", 401));
   }
 
+  if (request.body.password !== request.body.confirmPassword) {
+    return next(
+      new ErrorHandler("Password does not match with confirm password", 401)
+    );
+  }
   user.password = request.body.password;
   user.resetPasswordToken = undefined;
   user.resetPasswordExpire = undefined;
@@ -297,8 +359,8 @@ exports.resetPassword = catchAsyncErrors(async (request, response, next) => {
   await user.save();
 
   return response.status(200).json({
-    sucess: true,
-    message: "Reset Password Sucessfully",
+    success: true,
+    message: "Reset Password successfully",
   });
 });
 
@@ -307,14 +369,71 @@ exports.deleteUser = catchAsyncErrors(async (request, response, next) => {
 
   if (!user) {
     return next(
-      new ErrorHandler(`User does not exist with id: ${request.params.id}`, 404)
+      new ErrorHandler(`User does not exist with Id: ${req.params.id}`, 400)
     );
   }
+
+  const imageId = user.avatar.public_id;
+
+  await cloudinary.uploader.destroy(imageId);
+
+  deletingPostsOfuser(user.posts);
+
+  removingFollowersAndFollowingsOfUser(user.followers, user.followings);
 
   await user.deleteOne();
 
   response.status(200).json({
-    sucess: true,
-    message: "User Account deleted Sucessfully",
+    success: true,
+    message: "User Deleted Successfully",
+  });
+});
+
+exports.getAllFollowingsUsers = catchAsyncErrors(
+  async (request, response, next) => {
+    const apiFeature = new ApiFeatures(
+      User.find({
+        _id: { $in: request.user.followings },
+      }),
+      request.query
+    ).search();
+
+    const followingsUsers = await apiFeature.query;
+
+    response.status(200).json({
+      success: true,
+      followingsUsers,
+    });
+  }
+);
+
+exports.getUserDetails = catchAsyncErrors(async (request, response, next) => {
+  const user = await User.findById(request.params.id);
+
+  if (!user) {
+    return next(
+      new ErrorHandler(`User with id ${request.params.id} not found`, 404)
+    );
+  }
+
+  response.status(200).json({ success: true, user });
+});
+
+// update User Role -- Admin
+exports.updateUserRole = catchAsyncErrors(async (req, res, next) => {
+  const newUserData = {
+    name: req.body.name,
+    email: req.body.email,
+    userRole: req.body.userRole,
+  };
+
+  await User.findByIdAndUpdate(req.params.id, newUserData, {
+    new: true,
+    runValidators: true,
+    useFindAndModify: false,
+  });
+
+  res.status(200).json({
+    success: true,
   });
 });

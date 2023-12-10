@@ -2,13 +2,12 @@
   scroll-behavior: smooth;
 }
 
-/* html {
-  position: relative;
-  min-height: 100%;
-} */
-
 ::-webkit-scrollbar {
   display: none;
+}
+
+body {
+  cursor: url("./images/cursor.png"), auto;
 }
 
 /* Chrome, Safari, Edge, Opera */
@@ -23,9 +22,9 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 .greenColor {
-  color: green;
+  color: green !important;
 }
 
 .redColor {
-  color: red;
+  color: red !important;
 }

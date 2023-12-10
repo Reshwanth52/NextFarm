@@ -54,9 +54,9 @@
   width: 70%;
   padding: 1vmax 0;
 }
-.detailsBlock-2 > span {
-  color: rgb(54, 54, 54, 0.582);
-  font: 200 0.6vmax cursive;
+.detailsBlock-2-span {
+  font: 200 1vmax cursive;
+  color: rgba(0, 0, 0, 0.582);
 }
 .detailsBlock-3 {
   width: 70%;
@@ -143,6 +143,19 @@
   transform: scale(1.1);
 }
 
+.submitDialog {
+  display: flex;
+  flex-direction: column;
+}
+
+.submitDialogTextArea {
+  border: 1px solid rgba(0, 0, 0, 0.74);
+  margin: 1vmax 0;
+  outline: none;
+  padding: 1rem;
+  font: 300 1rem "Roboto";
+}
+
 .reviewsHeading {
   color: #000000be;
   font: 500 1.4vmax "Roboto";
@@ -159,10 +172,10 @@
 }
 .reviewCard {
   flex: none;
-  padding: 3vmax;
+  padding: 3vmax 1vmax;
   box-shadow: 0 0 5px rgba(0, 0, 0, 0.216);
   border: 1px solid rgb(54, 54, 54, 0.116);
-  width: 30vmax;
+  width: 25vmax;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -171,13 +184,14 @@
 
 .reviewCard > img {
   width: 5vmax;
+  height: 5vmax;
 }
 
 .reviewCard > p {
   color: rgba(0, 0, 0, 0.815);
   font: 600 0.9vmax "Roboto";
 }
-.reviewCard > span {
+.reviewCardComment {
   color: rgba(0, 0, 0, 0.438);
   font: 300 0.8vmax cursive;
 }
@@ -251,5 +265,13 @@
     padding: 1.5vmax;
     width: 20vmax;
     margin: 3vmax 0;
+  }
+
+  .reviewCard > p {
+    font: 600 3vw "Roboto";
+  }
+
+  .reviewCardComment {
+    font: 300 5vw cursive;
   }
 }

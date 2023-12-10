@@ -1,0 +1,88 @@
+.farmerForm {
+  background: linear-gradient(
+      to bottom,
+      rgba(50, 50, 50, 0.463),
+      rgba(72, 120, 53, 0.171)
+    ),
+    rgba(72, 120, 53, 0.564)
+      url("https://res.cloudinary.com/dbsjntmvo/image/upload/v1687864715/cf325104-29ba-4429-b19c-48232b2a78ad-transformed_jeypu4.png");
+  height: max-content;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: auto;
+  padding: 6vmax 0;
+  display: block;
+}
+.farmerForm > h3 {
+  text-align: center;
+  color: tomato;
+}
+
+.farmerForm > form {
+  width: 24vmax;
+  background-color: rgb(102, 132, 102);
+  margin: auto;
+  line-height: 2;
+  padding: 3vmax;
+}
+
+.location,
+.cropDetails {
+  display: flex;
+  justify-content: space-between;
+}
+.location label,
+.cropDetails label {
+  display: block;
+}
+.farmerForm > form label {
+  display: block;
+  color: black;
+  font-size: 1.1vmax;
+}
+.farmerForm > form input,
+select {
+  width: 10vmax;
+  border-radius: 5px;
+  padding: 4px;
+  outline: none;
+  border: none;
+}
+.farmerForm > form > input::placeholder {
+  color: rgba(0, 0, 0, 0.36);
+  padding: 1px;
+}
+.farmerForm input[type="file"] {
+  display: none;
+}
+#uploadImageLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  color: white;
+  background-color: rgba(255, 166, 0, 0.688);
+  font-size: 1vmax;
+  width: 10vmax;
+  padding: 0 2vmax;
+  margin: 2vmax auto;
+}
+
+#uploadImageLabel svg:hover {
+  color: white;
+}
+
+#submitBtn {
+  margin: auto;
+  width: 100%;
+  padding: 1vmax;
+  background-color: rgba(137, 226, 43, 0.636);
+  font-size: 1vmax;
+  font-weight: 600;
+  color: white;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+#submitBtn:hover {
+  background-color: rgba(137, 226, 43, 0.936);
+  transform: scale(1.03);
+}

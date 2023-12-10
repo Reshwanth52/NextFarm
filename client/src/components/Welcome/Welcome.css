@@ -1,34 +1,41 @@
 .welcome > .cards {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
+  margin-bottom: 1vmax;
 }
-.menuItem .card {
+.welcome > .cards > .menuItem {
   display: flex;
-  margin: 30px;
-  width: 240px;
+  justify-content: space-evenly;
+}
+.welcome > .cards > .menuItem > .card {
+  display: flex;
+  margin: 2vmax;
   height: 300px;
+  width: 15vmax;
+}
+
+.welcome > .cards > .menuItem > .card > .image,
+img {
+  height: 300px;
+  width: 15vmax;
   text-align: center;
 }
-.menuItem .card .content {
+
+.welcome > .cards > .menuItem > .card > .content {
+  padding: 10px 5px;
   display: none;
+  height: 250px;
+  overflow: auto;
 }
-.menuItem .card:hover {
+
+.welcome > .cards > .menuItem > .card:hover {
   box-shadow: 0 0 5px rgba(71, 70, 70, 0.505);
+  transform: scale(1.1);
+  padding: auto;
 }
-.menuItem .card:hover > .content {
+.welcome > .cards > .menuItem > .card:hover > .content {
   display: block;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
-.menuItem .card > .image {
-  width: 240px;
-  height: 300px;
-}
-.menuItem .card > .image > img {
-  width: 240px;
-  height: 260px;
-}
-.menuItem .card:hover > .image {
+
+.welcome > .cards > .menuItem > .card:hover > .image {
   display: none;
 }

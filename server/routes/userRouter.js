@@ -10,10 +10,14 @@ const {
   myProfile,
   getUserProfile,
   getAllUsers,
-  forgotPssword,
+  forgotPassword,
   resetPassword,
   deleteUser,
   getAllFarmers,
+  getAllFollowingsUsers,
+  getCurrentUserDetails,
+  getUserDetails,
+  updateUserRole,
 } = require("../controllers/userController");
 const { isAuthenticated, authorizeRoles } = require("../middlewares/auth");
 
@@ -37,22 +41,38 @@ router.route("/delete/profile").delete(isAuthenticated, deleteProfile);
 
 router.route("/profile").get(myProfile);
 
+router.route("/me").get(isAuthenticated, getCurrentUserDetails);
+
 router
-  .route("/profile/:id")
+  .route("/user/:id")
   .get(isAuthenticated, authorizeRoles("farmer", "admin"), getUserProfile)
   .delete(isAuthenticated, authorizeRoles("admin"), deleteUser)
   .put(isAuthenticated, authorizeRoles("admin"), updateProfile);
 
 router
-  .route("/users/all")
+  .route("/admin/users")
   .get(isAuthenticated, authorizeRoles("admin"), getAllUsers);
 
-router.route("/forgot/password").post(forgotPssword);
+router
+  .route("/admin/user/:id")
+  .get(isAuthenticated, authorizeRoles("admin"), getUserDetails)
+  .put(isAuthenticated, authorizeRoles("admin"), updateUserRole)
+  .delete(isAuthenticated, authorizeRoles("admin"), deleteUser);
+
+router.route("/password/forgot").post(forgotPassword);
 
 router.route("/password/reset/:token").put(resetPassword);
 
 router
   .route("/farmers/all")
   .get(isAuthenticated, authorizeRoles("farmer", "admin"), getAllFarmers);
+
+router
+  .route("/users/following")
+  .get(
+    isAuthenticated,
+    authorizeRoles("admin", "farmer"),
+    getAllFollowingsUsers
+  );
 
 module.exports = router;

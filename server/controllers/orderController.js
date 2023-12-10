@@ -27,7 +27,7 @@ exports.newOrder = catchAsyncErrors(async (request, response, next) => {
   });
 
   response.status(201).json({
-    sucess: true,
+    success: true,
     order,
   });
 });
@@ -43,7 +43,7 @@ exports.getSingleOrder = catchAsyncErrors(async (request, response, next) => {
   }
 
   response.status(200).json({
-    sucess: true,
+    success: true,
     order,
   });
 });
@@ -52,7 +52,7 @@ exports.myOrders = catchAsyncErrors(async (request, response, next) => {
   const orders = await Order.find({ user: request.user._id });
 
   response.status(200).json({
-    sucess: true,
+    success: true,
     orders,
   });
 });
@@ -66,14 +66,14 @@ exports.getAllOrders = catchAsyncErrors(async (request, response, next) => {
     totalAmount += order.totalPrice;
   });
   response.status(200).json({
-    sucess: true,
+    success: true,
     totalAmount,
     orders,
   });
 });
 
 exports.updateOrder = catchAsyncErrors(async (request, response, next) => {
-  const order = await Order.find(request.params.id);
+  const order = await Order.findById(request.params.id);
   if (!order) {
     return next(new ErrorHandler(`Order not found with this ${id}`, 404));
   }
@@ -81,8 +81,13 @@ exports.updateOrder = catchAsyncErrors(async (request, response, next) => {
     return next(new ErrorHandler("You have delivered this order", 400));
   }
 
+  if (request.body.status === "Shipped") {
+    order.orderItems.forEach(async (o) => {
+      await updateStock(o.product, o.quantity);
+    });
+  }
   order.orderItems.forEach(async (order) => {
-    await updateStock(order.Product, order.quantity);
+    await updateStock(order.product, order.quantity);
   });
 
   order.orderStatus = request.body.status;
@@ -91,26 +96,26 @@ exports.updateOrder = catchAsyncErrors(async (request, response, next) => {
   }
   await order.save({ validateBeforeSave: false });
   response.status(200).json({
-    sucess: true,
+    success: true,
     order,
   });
 });
 
 async function updateStock(id, quantity) {
-  const producct = await Product.findById(id);
+  const product = await Product.findById(id);
   product.stock -= quantity;
 
   await product.save({ validateBeforeSave: false });
 }
 
 exports.deleteOrder = catchAsyncErrors(async (request, response, next) => {
-  const order = await Order.find(request.params.id);
+  const order = await Order.findOne({ _id: request.params.id });
   if (!order) {
     return next(new ErrorHandler(`Order not found with this ${id}`, 404));
   }
   await order.deleteOne();
 
   response.status(200).json({
-    sucess: true,
+    success: true,
   });
 });

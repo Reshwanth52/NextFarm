@@ -4,11 +4,11 @@ const {
   updateProduct,
   deleteProduct,
   getProductDetails,
-  getAllPesticidesProducts,
-  getAllAutomobileProducts,
+  getAllProducts,
   createProductReview,
   getProductReviews,
   deleteReview,
+  getAdminProducts,
 } = require("../controllers/productContoller");
 const { isAuthenticated, authorizeRoles } = require("../middlewares/auth");
 
@@ -18,8 +18,11 @@ router
   .route("/admin/product/new")
   .post(isAuthenticated, authorizeRoles("admin"), createProduct);
 
-router.route("/products/pesticides").get(getAllPesticidesProducts);
-router.route("/products/automobiles").get(getAllAutomobileProducts);
+router.route("/products/:productType").get(getAllProducts);
+
+router
+  .route("/admin/products")
+  .get(isAuthenticated, authorizeRoles("admin"), getAdminProducts);
 
 router
   .route("/admin/product/:id")
@@ -29,7 +32,7 @@ router
 
 router.route("/product/:id").get(getProductDetails);
 
-router.route("/review").post(isAuthenticated, createProductReview);
+router.route("/review").put(isAuthenticated, createProductReview);
 
 router
   .route("/reviews")

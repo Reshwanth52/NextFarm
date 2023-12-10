@@ -1,15 +1,18 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./Welcome.css";
+import Loader from "../layout/Loader/Loader";
+import { useAlert } from "react-alert";
 
 const Welcome = () => {
-  const [menuCards, setMenuCards] = useState([]);
+  const alert = useAlert();
+  const [menuCards, setMenuCards] = useState(null);
 
   useEffect(() => {
     axios
       .get("/api/v1/menuItem")
       .then((data) => setMenuCards(data.data.menuItems))
-      .catch((err) => console.log(err));
+      .catch();
   }, []);
 
   const Card = () => {
@@ -32,13 +35,13 @@ const Welcome = () => {
 
   return (
     <div className="welcome">
-      <div className="cards">
-        <Card />
-        <Card />
-        <Card />
-        <Card />
-        {/* <Card /> */}
-      </div>
+      {menuCards ? (
+        <div className="cards">
+          <Card />
+        </div>
+      ) : (
+        <Loader />
+      )}
     </div>
   );
 };

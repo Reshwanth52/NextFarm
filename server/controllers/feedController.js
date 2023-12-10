@@ -1,17 +1,36 @@
 const catchAsyncErrors = require("../middlewares/catchAsyncErrors");
 const Feed = require("../models/feedModel");
 const User = require("../models/userModel");
+const cloudinary = require("cloudinary").v2;
 const ErrorHandler = require("../utils/errorhandler");
+const ApiFeatures = require("../utils/apifeatures");
 
 exports.createFeed = catchAsyncErrors(async (request, response) => {
+  let files = [];
+  if (typeof request.body.files === "string") {
+    files.push(request.body.files);
+  } else {
+    files = request.body.files;
+  }
+  const fileLinks = [];
+
+  for (let i = 0; i < files.length; i++) {
+    const result = await cloudinary.uploader.upload(files[i], {
+      folder: "Feeds",
+      width: 300,
+      height: 200,
+      crop: "thumb",
+      zoom: 0.8,
+    });
+
+    fileLinks.push({
+      public_id: result.public_id,
+      url: result.secure_url,
+    });
+  }
   const newFeedData = {
     caption: request.body.caption,
-    images: [
-      {
-        public_id: "Sample Public_id",
-        url: "Sample URL",
-      },
-    ],
+    content: fileLinks,
     postedBy: request.user._id,
   };
   const newFeed = await Feed.create(newFeedData);
@@ -22,9 +41,7 @@ exports.createFeed = catchAsyncErrors(async (request, response) => {
 
   await user.save();
 
-  return response
-    .status(200)
-    .json({ sucess: true, message: "Feed added", newFeed });
+  return response.status(200).json({ success: true });
 });
 
 exports.likeFeed = catchAsyncErrors(async (request, response, next) => {
@@ -35,28 +52,30 @@ exports.likeFeed = catchAsyncErrors(async (request, response, next) => {
   }
 
   if (feed.likes.includes(request.user._id)) {
-    const index = await feed.likes.indexOf(request.user._id);
-    await feed.likes.splice(index, 1);
+    const index = feed.likes.indexOf(request.user._id);
+    feed.likes.splice(index, 1);
     await feed.save();
-    return response.status(200).json({ sucess: true, message: "Unliked Feed" });
+    return response
+      .status(200)
+      .json({ success: true, message: "Unliked Feed" });
   } else {
-    await feed.likes.push(request.user._id);
+    feed.likes.push(request.user._id);
     await feed.save();
 
     if (feed.dislikes.includes(request.user._id)) {
       try {
         if (feed.dislikes.includes(request.user._id)) {
-          const index = await feed.dislikes.indexOf(request.user._id);
-          await feed.dislikes.splice(index, 1);
+          const index = feed.dislikes.indexOf(request.user._id);
+          feed.dislikes.splice(index, 1);
           await feed.save();
         }
       } catch (error) {
         return response
           .status(500)
-          .json({ sucess: false, message: error.message });
+          .json({ success: false, message: error.message });
       }
     }
-    return response.status(200).json({ sucess: true, message: "Liked Feed" });
+    return response.status(200).json({ success: true, message: "Liked Feed" });
   }
 });
 
@@ -76,28 +95,28 @@ exports.dislikeFeed = catchAsyncErrors(async (request, response, next) => {
 
     return response
       .status(200)
-      .json({ sucess: true, message: "DisUnliked Feed" });
+      .json({ success: true, message: "DisUnliked Feed" });
   } else {
-    await feed.dislikes.push(request.user._id);
+    feed.dislikes.push(request.user._id);
 
     await feed.save();
 
     if (feed.likes.includes(request.user._id)) {
       try {
         if (feed.likes.includes(request.user._id)) {
-          const index = await feed.likes.indexOf(request.user._id);
-          await feed.likes.splice(index, 1);
+          const index = feed.likes.indexOf(request.user._id);
+          feed.likes.splice(index, 1);
           await feed.save();
         }
       } catch (error) {
         return response
           .status(500)
-          .json({ sucess: false, message: error.message });
+          .json({ success: false, message: error.message });
       }
     }
     return response
       .status(200)
-      .json({ sucess: true, message: "DisLiked Feed" });
+      .json({ success: true, message: "DisLiked Feed" });
   }
 });
 
@@ -115,7 +134,7 @@ exports.createComment = catchAsyncErrors(async (request, response, next) => {
 
   await feed.save();
 
-  return response.status(200).json({ sucess: true, message: "Comment added" });
+  return response.status(200).json({ success: true, message: "Comment added" });
 });
 
 exports.deleteComment = catchAsyncErrors(async (request, response, next) => {
@@ -128,7 +147,7 @@ exports.deleteComment = catchAsyncErrors(async (request, response, next) => {
   if (request.body.commentId === undefined) {
     return response
       .status(400)
-      .message({ sucess: false, message: "Comment Id is required" });
+      .message({ success: false, message: "Comment Id is required" });
   }
 
   if (!feed.postedBy.toString() === request.user._id) {
@@ -149,14 +168,14 @@ exports.deleteComment = catchAsyncErrors(async (request, response, next) => {
       } else {
         return response
           .status(401)
-          .json({ sucess: false, message: "UnAuthorize" });
+          .json({ success: false, message: "UnAuthorize" });
       }
     });
   }
 
   return response
     .status(200)
-    .json({ sucess: true, message: "Comment Deleted" });
+    .json({ success: true, message: "Comment Deleted" });
 });
 
 exports.deleteFeed = catchAsyncErrors(async (request, response, next) => {
@@ -166,10 +185,14 @@ exports.deleteFeed = catchAsyncErrors(async (request, response, next) => {
     return next(new ErrorHandler("Feed not found", 404));
   }
 
-  if (feed.postedBy.toString() !== request.user._id.toString()) {
-    return response.status(401).json({ sucess: false, message: "UnAuthorize" });
+  if (
+    feed.postedBy.toString() !== request.user._id.toString() &&
+    request.user.userRole !== "admin"
+  ) {
+    return response
+      .status(401)
+      .json({ success: false, message: "UnAuthorize" });
   }
-
   await feed.deleteOne();
   const index = request.user.posts.indexOf(request.params.id);
   await request.user.posts.splice(index, 1);
@@ -177,19 +200,127 @@ exports.deleteFeed = catchAsyncErrors(async (request, response, next) => {
 
   return response
     .status(200)
-    .json({ sucess: true, message: "Feed is deleted" });
+    .json({ success: true, message: "Feed is deleted" });
 });
 
-exports.getPostsOfFollowingUser = catchAsyncErrors(
+exports.getFeedsOfFollowingUser = catchAsyncErrors(
+  async (request, response, next) => {
+    const feeds = await Feed.aggregate([
+      {
+        $match: {
+          postedBy: {
+            $in: request.user.followings,
+          },
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "postedBy",
+          foreignField: "_id",
+          as: "userDetails",
+        },
+      },
+      {
+        $addFields: {
+          postedBy: {
+            name: { $arrayElemAt: ["$userDetails.name", 0] },
+            avatar: { $arrayElemAt: ["$userDetails.avatar", 0] },
+          },
+        },
+      },
+      {
+        $match: {
+          "postedBy.name": {
+            $regex: request.query.keyword,
+            $options: "i",
+          },
+        },
+      },
+      {
+        $project: {
+          userDetails: 0,
+        },
+      },
+    ]);
+
+    return response.status(200).json({ success: true, feeds });
+  }
+);
+
+exports.getAllFeeds = catchAsyncErrors(async (request, response, next) => {
+  const feeds = await Feed.aggregate([
+    {
+      $lookup: {
+        from: "users",
+        localField: "postedBy",
+        foreignField: "_id",
+        as: "userDetails",
+      },
+    },
+    {
+      $addFields: {
+        postedBy: {
+          name: { $arrayElemAt: ["$userDetails.name", 0] },
+          avatar: { $arrayElemAt: ["$userDetails.avatar", 0] },
+        },
+      },
+    },
+    {
+      $match: {
+        "postedBy.name": {
+          $regex: request.query.keyword,
+          $options: "i",
+        },
+      },
+    },
+    {
+      $project: {
+        userDetails: 0,
+      },
+    },
+  ]);
+
+  if (!feeds) {
+    return next(new ErrorHandler("no feeds available, 200"));
+  }
+
+  return response.status(200).json({
+    success: true,
+    feeds,
+  });
+});
+
+exports.getALLMyFeeds = catchAsyncErrors(async (request, response, next) => {
+  const feeds = await Feed.find({ postedBy: request.user._id });
+
+  response.status(200).json({
+    success: true,
+    feeds,
+  });
+});
+
+exports.addAndRemoveInFavorites = catchAsyncErrors(
+  async (request, response, next) => {
+    const { id } = request.params;
+    const user = await User.findById(request.user._id);
+    if (user.favoriteFeeds.includes(id)) {
+      const index = user.favoriteFeeds.indexOf(id);
+      user.favoriteFeeds.splice(index, 1);
+      await user.save();
+    } else {
+      user.favoriteFeeds.push(id);
+      await user.save();
+    }
+    response.status(200).json({ success: true });
+  }
+);
+exports.getAllFavoriteFeeds = catchAsyncErrors(
   async (request, response, next) => {
     const feeds = await Feed.find({
-      postedBy: {
-        $in: request.user.following,
-      },
-    });
+      _id: { $in: request.user.favoriteFeeds },
+    }).populate("postedBy", "avatar name");
 
-    return response
-      .status(200)
-      .json({ sucess: true, message: "Fetch all posts", feeds });
+    response.status(200).json({ success: true, feeds });
   }
 );

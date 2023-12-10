@@ -23,7 +23,7 @@ const orderSchema = new mongoose.Schema({
       type: Number,
       required: true,
     },
-    contactNumber: {
+    phoneNo: {
       type: Number,
       required: true,
     },
@@ -58,46 +58,46 @@ const orderSchema = new mongoose.Schema({
     ref: "User",
     required: true,
   },
-  paymentInfo:{
-    id:{
-        type: String,
-        required: true
+  paymentInfo: {
+    id: {
+      type: String,
+      required: true,
     },
-    status:{
-        type: String,
-        required: true
-    }
+    status: {
+      type: String,
+      required: true,
+    },
   },
   paidAt: {
     type: Date,
-    required: true
+    required: true,
   },
-  itemsPrice:{
+  itemsPrice: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  taxPrice:{
+  taxPrice: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  shippingPrice:{
+  shippingPrice: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  totalPrice:{
+  totalPrice: {
     type: Number,
-    default: 0
+    default: 0,
   },
-  orderStatuc:{
+  orderStatus: {
     type: String,
     required: true,
-    default: "Processing"
+    default: "Processing",
   },
   deliveredAt: Date,
-  createdAt:{
+  createdAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Order", orderSchema);

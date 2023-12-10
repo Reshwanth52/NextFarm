@@ -1,0 +1,104 @@
+.profile > .top_profile {
+  display: flex;
+  padding: 2vmax 0;
+  align-items: center;
+  height: 13vmax;
+}
+
+.profile > .top_profile > .top_left_profile {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  align-items: center;
+}
+
+.profile > .top_profile > .top_right_profile {
+  padding: 30px;
+  height: 100%;
+  position: relative;
+}
+
+.profile > .top_profile > .top_left_profile > a,
+.profile > .top_profile > .top_right_profile > a {
+  text-decoration: none;
+  border: 1px solid gray;
+  background-color: rgba(47, 100, 47, 0.836);
+  padding: 0.5vmax 2vmax;
+  color: white;
+  width: max-content;
+  transition: all 0.5s;
+}
+.profile > .top_profile > .top_left_profile > a:hover,
+.profile > .top_profile > .top_right_profile > a:hover {
+  transform: scale(1.05);
+  background-color: rgba(36, 77, 36, 0.836);
+}
+.profile > .top_profile > .top_left_profile > img {
+  width: 10vmax;
+  height: 10vmax;
+  border-radius: 100%;
+  margin: 2vmax 4vmax;
+}
+
+.profile > .top_profile > .top_right_profile > .account_details > #name {
+  font: 400 1.4vmax "Roboto";
+}
+.profile > .top_profile > .top_right_profile > .account_details > #email {
+  font: 100 1vmax "Roboto";
+}
+
+.profile > .top_profile > .top_right_profile > .activity_details {
+  display: flex;
+  justify-content: space-between;
+  width: 20vmax;
+  font: 400 1.2vmax "Roboto";
+  margin-bottom: 10px;
+}
+
+.profile > .top_profile > .top_right_profile > a {
+  background-color: rgba(255, 0, 0, 0.836);
+  position: absolute;
+  bottom: 0.2vmax;
+}
+
+.profile > .top_profile > .top_right_profile > a:hover {
+  transform: scale(1.05);
+  background-color: rgba(209, 8, 8, 0.718);
+}
+
+.profile > .bottom_profile {
+  display: flex;
+}
+
+.profile > .bottom_profile > .bottom_left_profile {
+  width: max-content;
+  padding: 1vmax;
+}
+
+.profile > .bottom_profile > .bottom_right_profile {
+  width: 100%;
+  padding: 1vmax;
+}
+
+.profile > .bottom_profile > .bottom_right_profile > .heading {
+  text-align: center;
+  font: 500 1.2vmax "Roboto";
+  color: rgba(0, 0, 0, 0.673);
+  border: none;
+}
+
+.profile > .bottom_profile > .bottom_right_profile > .posts {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 2vmax;
+}
+
+.profile > .bottom_profile > .bottom_right_profile > .posts > .post_card {
+  border: 1px solid grey;
+  margin: 1vmax 2vmax;
+}
+
+.profile > .bottom_profile > .bottom_right_profile > .posts > .post_card > img {
+  height: 17vmax;
+  width: 15vmax;
+}
