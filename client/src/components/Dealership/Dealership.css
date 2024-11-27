@@ -1,0 +1,26 @@
+.dealership {
+  background-color: rgba(91, 90, 90, 0.159);
+  justify-content: center;
+  height: max-content;
+  text-align: center;
+  padding: 2vmax 0;
+  position: relative;
+  border: 1px solid blue;
+}
+.dealership > .Profession_button {
+  padding: 1.3vmax 10vmax;
+  text-align: center;
+  border: none;
+  border-radius: 50px;
+  outline: none;
+  background: transparent;
+  margin: 0 3vmax;
+  font-size: 1vmax;
+  background-color: rgba(129, 239, 96, 0.5);
+}
+
+.dealership > .Profession_button:hover {
+  background-color: rgba(129, 239, 96, 0.8);
+  transition: all 2s;
+  transform: scaleX(2vmax);
+}

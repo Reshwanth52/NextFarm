@@ -1,0 +1,38 @@
+.buyerPage {
+  text-align: center;
+  cursor: pointer;
+  margin-bottom: 4vmax;
+}
+
+.buyerPage > .body {
+  display: flex;
+}
+.buyerPage_left {
+  width: 20vmax;
+  border-right: none;
+  box-shadow: 10px 0px 0 1px rgba(0, 128, 0, 0.164);
+  padding-bottom: 2vmax;
+}
+
+.buyerPage_left > p,
+.radio_filter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.buyerPage_right > .sales_cards {
+  display: flex;
+  margin: 0 2vmax;
+  flex-wrap: wrap;
+}
+.sales_cards > .sales_card {
+  border: 1px solid black;
+  padding: 1vmax;
+  margin: 0 2vmax;
+  box-shadow: 1px 1px 1px 1px grey;
+}
+
+.sales_cards > .sales_card > span {
+  color: tomato;
+}

@@ -1,0 +1,28 @@
+.pageNotFound {
+  display: flex;
+  width: 100%;
+  height: 75vh;
+  justify-content: center;
+  align-items: center;
+  font-size: 2vmax;
+  color: rgb(77, 59, 59);
+}
+
+.pageNotFound > svg {
+  display: block;
+  color: rgba(208, 208, 57, 0.911);
+  font-size: 12vmax;
+  animation: pagenotfound 6000ms linear infinite alternate;
+  position: relative;
+}
+
+@keyframes pagenotfound {
+  0% {
+    transform: rotateZ(-5deg);
+    left: 0%;
+  }
+  100% {
+    transform: rotateZ(5deg);
+    left: 2vmax;
+  }
+}

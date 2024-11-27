@@ -1,0 +1,11 @@
+.not_found {
+  text-align: center;
+  margin-bottom: 4vmax;
+}
+.not_found > svg {
+  color: tomato;
+  display: block;
+  font-size: 4vmax;
+  width: 100%;
+  margin: 1vmax auto;
+}

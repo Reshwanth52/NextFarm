@@ -1,0 +1,41 @@
+.welcome > .cards {
+  margin-bottom: 1vmax;
+}
+.welcome > .cards > .menuItem {
+  display: flex;
+  justify-content: space-evenly;
+}
+.welcome > .cards > .menuItem > .card {
+  display: flex;
+  margin: 2vmax;
+  height: 300px;
+  width: 15vmax;
+}
+
+.welcome > .cards > .menuItem > .card > .image,
+img {
+  height: 300px;
+  width: 15vmax;
+  text-align: center;
+}
+
+.welcome > .cards > .menuItem > .card > .content {
+  padding: 10px 5px;
+  display: none;
+  height: 250px;
+  overflow: auto;
+}
+
+.welcome > .cards > .menuItem > .card:hover {
+  box-shadow: 0 0 5px rgba(71, 70, 70, 0.505);
+  transform: scale(1.1);
+  padding: auto;
+}
+.welcome > .cards > .menuItem > .card:hover > .content {
+  display: block;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.welcome > .cards > .menuItem > .card:hover > .image {
+  display: none;
+}

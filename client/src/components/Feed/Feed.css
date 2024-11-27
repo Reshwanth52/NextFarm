@@ -1,0 +1,195 @@
+.feedPage {
+  padding: 3vmax;
+  display: flex;
+}
+.feedPage > .feed_left {
+  display: flex;
+  flex-direction: column;
+  width: 25%;
+  box-shadow: 2px 0px 0px 2px rgba(27, 27, 27, 0.164);
+  padding: 1vmax 2vmax;
+}
+
+.feedPage > .feed_left > #filterHeader {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.feedPage > .feed_left > button {
+  border-radius: 10px;
+  margin: 10px auto;
+}
+
+.feed_mid {
+  width: 35%;
+  height: 100vh;
+  overflow: auto;
+  padding: 0 3vmax;
+}
+.feed_card {
+  display: flex;
+  flex-direction: column;
+  border: 2px solid rgba(0, 0, 0, 0.197);
+  margin-bottom: 2vmax;
+}
+.feed_header {
+  display: flex;
+  align-items: center;
+  position: relative;
+  margin: 5px 0;
+}
+.feed_header > .MuiAvatar-root {
+  width: 3vmax;
+  height: 3vmax;
+  border-radius: 20px;
+  margin: 0 5px;
+}
+.MuiMenu-paper {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  box-shadow: none;
+  box-sizing: border-box;
+  padding: 10px;
+}
+.MuiMenu-list {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin: 10px 10px;
+}
+.MuiMenuItem-root {
+  display: block;
+}
+.MuiMenuItem {
+  border: 10px solid red;
+}
+.feed_header > button {
+  position: absolute;
+  right: 10px;
+}
+.feed_card .feed_content {
+  border-top: 1px solid grey;
+  border-bottom: 1px solid grey;
+}
+.feed_card .feed_content .carousel {
+  display: flex;
+  flex-direction: column;
+  height: 18vmax;
+  width: 100%;
+}
+.feed_card .carousel img {
+  height: 18vmax;
+  width: 100%;
+}
+.feed_caption {
+  display: flex;
+  align-items: center;
+  background-color: rgba(236, 233, 233, 0.911);
+}
+.feed_caption > p {
+  margin: 2vmax 1vmax;
+  font: 600 1vmax "Roboto";
+}
+.feed_caption > span {
+  font: 100 1.1vmax "Roboto";
+  color: rgba(0, 0, 0, 0.555);
+}
+.feed_right {
+  width: 26%;
+  box-shadow: -2px 0px 0px 2px rgba(27, 27, 27, 0.164);
+  display: flex;
+  flex-direction: column;
+  padding: 1vmax;
+}
+.feed_right > input {
+  padding: 0.5vmax 1vmax;
+  background-color: white;
+  font: 400 1vmax "Roboto";
+  margin: 1vmax 0;
+}
+.feed_right > input::placeholder {
+  font: 400 1vmax "Roboto";
+}
+.feed_right .chat_box {
+  height: 5vmax;
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.6vmax 0.4vmax;
+  height: max-content;
+  box-shadow: 0 1px 0 0 rgba(128, 128, 128, 0.197);
+  border-bottom: 1px solid rgba(128, 128, 128, 0.197);
+}
+.feed_right .chat_box > img,
+.feed_right .chat_box > .MuiAvatar-root {
+  height: 3vmax;
+  width: 3vmax;
+  border-radius: 50%;
+  margin-right: 20px;
+}
+.feed_right .chat_box > div {
+  padding: 0;
+}
+.feed_right .chat_box > div > p {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font: 500 1vmax "Roboto";
+}
+.feed_right .chat_box > div > span {
+  font: 300 1vmax "Roboto";
+  color: rgba(0, 0, 0, 0.549);
+}
+
+.no_chat_mssg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  color: rgba(128, 128, 128, 0.692);
+  padding: 2vmax 0;
+}
+.no_chat_mssg > svg,
+.no_chat_mssg > #text_mssg {
+  font: 500 2vmax "Roboto";
+}
+.feedDialog {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 25vmax;
+}
+.feedDialog > form {
+  width: 20vmax;
+  margin: auto;
+}
+input[type="file"] {
+  width: 100%;
+}
+input[type="file"]::file-selector-button {
+  width: 100%;
+  cursor: pointer;
+  background-color: tomato;
+  color: white;
+  padding: 1vmax;
+}
+.imagePreview {
+  display: flex;
+  width: 100%;
+  overflow: auto;
+}
+.imagePreview > div > img {
+  width: 3vmax;
+  height: 3vmax;
+  margin: 10px;
+}
+.imagePreview > div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imagePreview > div > svg {
+  position: absolute;
+  color: rgba(16, 16, 16, 0.624);
+}
